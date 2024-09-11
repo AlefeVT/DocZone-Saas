@@ -1,0 +1,126 @@
+// prisma/schema.prisma
+// prisma/schema.prisma
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  name                  String?
+  email                 String?                @unique
+  emailVerified         DateTime?
+  image                 String?
+  password              String?
+  role                  String                 @default("USER")
+  accounts              Account[]
+  isTwoFactorEnabled    Boolean                @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
+
+  files      File[]
+  signatures Signature[]
+  containers Container[]
+
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+}
+
+model Container {
+  id          String      @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  files       File[]
+  parentId    String?    
+  parent      Container?  @relation("ParentChild", fields: [parentId], references: [id])
+  children    Container[] @relation("ParentChild") 
+  createdAt   DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+
+model File {
+  id          String      @id @default(cuid())
+  containerId String
+  userId      String
+  key         String      @unique
+  fileName    String
+  fileSize    String
+  fileType    String
+  signatures  Signature[]
+  createdAt   DateTime    @default(now())
+
+  container Container? @relation(fields: [containerId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id])
+}
+
+model Signature {
+  id             String   @id @default(cuid())
+  fileId         String
+  userId         String
+  signedAt       DateTime @default(now())
+  signatureType  String
+  signatureValue String
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+}
