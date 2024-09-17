@@ -33,7 +33,7 @@ model User {
 
 model Subscription {
   id        String   @id @default(cuid()) @map("_id")
-  userId    String   @unique // Aqui, adicionei o atributo @unique
+  userId    String   @unique 
   plan      String
   period    String
   startDate DateTime @default(now())
