@@ -26,11 +26,22 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: 'Email already in use!' };
   }
 
-  await db.user.create({
+  // Criar o usuário no banco de dados
+  const user = await db.user.create({
     data: {
       name,
       email,
       password: hashedPassword,
+    },
+  });
+
+  // Criar uma assinatura padrão com o plano "free"
+  await db.subscription.create({
+    data: {
+      userId: user.id,
+      plan: 'free',
+      period: 'monthly', // ou qualquer período que você deseja
+      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Definindo como 1 ano, ajuste conforme necessário
     },
   });
 

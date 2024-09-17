@@ -3,9 +3,9 @@ import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
 import {
   DEFAULT_LOGIN_REDIRECT,
+  LANDING_PAGE_ROUTE,
   apiAuthPrefix,
   authRoutes,
-  landingPageRoute,
   publicRoutes,
 } from '@/routes';
 
@@ -13,18 +13,27 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
+
+  if (nextUrl.pathname === '/api/webhooks/stripe') {
+    return null; // Ignorar autenticação para essa rota
+  }
+  
   const isLoggedIn = !!req.auth;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const isLandingPageRoute = landingPageRoute.includes(nextUrl.pathname);
 
   if (isApiAuthRoute) {
     return null;
   }
 
-  if (isAuthRoute || isLandingPageRoute) {
+  if (isAuthRoute) {
+
+    if ((nextUrl.searchParams.has('payment')) && isLoggedIn) {
+      return Response.redirect(new URL(LANDING_PAGE_ROUTE, nextUrl));
+    }
+
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
@@ -48,7 +57,6 @@ export default auth((req) => {
   return null;
 });
 
-// Optionally, don't invoke Middleware on some paths
 export const config = {
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };

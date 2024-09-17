@@ -18,19 +18,27 @@ export async function Navbar() {
       <div className="flex items-center">
         {user ? (
           <>
-            <UserDropdown
-              email={user.email as string}
-              name={user.name as string}
-              userImage={user.image ?? `https://avatar.vercel.sh/${user.name}`}
-            />
+            <div className="md:flex md:flex-1 md:items-center md:justify-end md:space-x-6">
+              <Button variant={'default'} asChild>
+                <Link href={'/dashboard'}>Entrar</Link>
+              </Button>
+
+              <UserDropdown
+                email={user.email as string}
+                name={user.name as string}
+                userImage={user.image ?? `https://avatar.vercel.sh/${user.name}`}
+              />
+            </div>
+
+
           </>
         ) : (
           <div className="md:flex md:flex-1 md:items-center md:justify-end md:space-x-2">
-            <Button variant={'ghost'} asChild>
+            <Button variant={'default'} asChild>
               <Link href={'/auth/login'}>Conectar</Link>
             </Button>
 
-            <Button variant={'ghost'} asChild>
+            <Button variant={'default'} asChild>
               <Link href={'/auth/register'}>Rergistrar-se</Link>
             </Button>
           </div>

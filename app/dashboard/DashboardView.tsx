@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -8,6 +8,7 @@ import { InfoCard } from './_components/dashboardInfoCards';
 import { DocumentBarChart } from './_components/DocumentBarChart';
 import { DocumentLineChart } from './_components/DocumentLineChart';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 
 export default function DashboardView() {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ export default function DashboardView() {
     totalContainers: 0,
     totalStorageUsedSize: 0,
     totalStorageUsedUnit: '',
+    storageLimit: 100, // Por exemplo, 100 GB como o limite
   });
 
   const [dataBar, setDataBar] = useState([]);
@@ -31,7 +33,8 @@ export default function DashboardView() {
           data.totalDocuments,
           data.totalContainers,
           data.totalStorageUsed.size,
-          data.totalStorageUsed.unit
+          data.totalStorageUsed.unit,
+          data.storageLimit
         );
 
         setDataBar(data.documentsPerContainer);
@@ -39,7 +42,7 @@ export default function DashboardView() {
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       } finally {
-        setLoading(false); // Definir loading como falso após o carregamento
+        setLoading(false);
       }
     }
 
@@ -50,7 +53,8 @@ export default function DashboardView() {
     finalDocuments: number,
     finalContainers: number,
     finalStorageSize: number,
-    finalStorageUnit: string
+    finalStorageUnit: string,
+    finalStorageLimit: number
   ) => {
     const duration = 2000;
     const steps = 60;
@@ -78,6 +82,7 @@ export default function DashboardView() {
           finalStorageSize
         ),
         totalStorageUsedUnit: finalStorageUnit,
+        storageLimit: finalStorageLimit,
       });
 
       if (
@@ -89,6 +94,11 @@ export default function DashboardView() {
       }
     }, duration / steps);
   };
+
+  const storagePercentage = Math.min(
+    (animatedData.totalStorageUsedSize / animatedData.storageLimit) * 100,
+    100
+  );
 
   return (
     <div className="p-6">
@@ -121,6 +131,23 @@ export default function DashboardView() {
               icon={<Server size={25} className="text-gray-500" />}
               colorClass="text-primary"
             />
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle>Armazenamento do Plano</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>
+                  {animatedData.totalStorageUsedSize} / {animatedData.storageLimit}{' '}
+                  {animatedData.totalStorageUsedUnit}
+                </p>
+                <Progress value={storagePercentage} />
+                <p className="text-xs mt-2">
+                  {storagePercentage >= 100
+                    ? 'Armazenamento cheio'
+                    : `Usado ${storagePercentage.toFixed(2)}% do limite`}
+                </p>
+              </CardContent>
+            </Card>
           </>
         )}
       </div>

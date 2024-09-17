@@ -8,7 +8,6 @@ import { LoginSchema } from '@/schemas';
 import { getUserByEmail } from '@/data/user';
 import { getTwoFactorTokenByEmail } from '@/data/two-factor-token';
 import { sendVerificationEmail, sendTwoFactorTokenEmail } from '@/lib/mail';
-import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
 import { generateVerificationToken, generateTwoFactorToken } from '@/lib/token';
 import { getTwoFactorConfirmationByUserId } from '@/data/two-factor-confirmation';
 import { PrismaClient } from '@prisma/client';
@@ -101,11 +100,12 @@ export const login = async (
   }
 
   try {
+    console.log("TESTE1" + callbackUrl);
     await signIn('credentials', {
       email,
-      password,
-      redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
+      password
     });
+
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

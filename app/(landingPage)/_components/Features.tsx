@@ -42,7 +42,7 @@ export function FeaturesSection() {
           <FeatureItem
             icon={<FileText className="h-12 w-12 text-primary" />}
             title="Suporte a Múltiplos Formatos"
-            description="Gerencie e visualize documentos em diversos formatos, incluindo PDF, DOCX, XLSX, e mais."
+            description="Gerencie documentos em diversos formatos, incluindo PDF, DOCX, XLSX, e mais."
           />
           <FeatureItem
             icon={<Package className="h-12 w-12 text-primary" />}
