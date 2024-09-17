@@ -21,11 +21,28 @@ model User {
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
 
+  Subscription Subscription?
+  customerId   String?
+
   files      File[]
   signatures Signature[]
   containers Container[]
 
   createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String   @unique // Aqui, adicionei o atributo @unique
+  plan      String
+  period    String
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User @relation(fields: [userId], references: [id])
 }
 
 model Account {
@@ -89,14 +106,13 @@ model Container {
   name        String
   description String?
   files       File[]
-  parentId    String?    
+  parentId    String?
   parent      Container?  @relation("ParentChild", fields: [parentId], references: [id])
-  children    Container[] @relation("ParentChild") 
+  children    Container[] @relation("ParentChild")
   createdAt   DateTime    @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
-
 
 model File {
   id          String      @id @default(cuid())
