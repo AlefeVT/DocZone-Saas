@@ -43,7 +43,11 @@ const ContainerNode: React.FC<ContainerNodeProps> = ({
             size={20}
           />
         ) : (
-          <ExternalLink size={16} className="text-gray-500" onClick={handleSelectContainer} />
+          <ExternalLink
+            size={16}
+            className="text-gray-500"
+            onClick={handleSelectContainer}
+          />
         )}
         <Package size={20} className="text-gray-600" />
         <span className="text-base font-medium">{container.name}</span>

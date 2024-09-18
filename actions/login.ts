@@ -100,12 +100,10 @@ export const login = async (
   }
 
   try {
-    console.log("TESTE1" + callbackUrl);
     await signIn('credentials', {
       email,
-      password
+      password,
     });
-
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

@@ -33,10 +33,12 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface ContainerTableProps {
-  containers: ContainerData[]; 
+  containers: ContainerData[];
 }
 
-export const columns: ColumnDef<ContainerData>[] = [
+export const columns: (
+  routerPush: (url: string) => void
+) => ColumnDef<ContainerData>[] = (routerPush) => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -45,9 +47,7 @@ export const columns: ColumnDef<ContainerData>[] = [
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
-        onCheckedChange={(value) =>
-          table.toggleAllPageRowsSelected(!!value)
-        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
@@ -82,7 +82,6 @@ export const columns: ColumnDef<ContainerData>[] = [
     header: 'Ações',
     cell: ({ row, table }) => {
       const container = row.original;
-      const router = useRouter();
 
       return (
         <DropdownMenu>
@@ -116,25 +115,27 @@ export const columns: ColumnDef<ContainerData>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                const selectedContainers = table.getRowModel().rows.map((row) => row.original);
+                const selectedContainers = table
+                  .getRowModel()
+                  .rows.map((row) => row.original);
 
-                const selectedContainerIds = Object.keys(table.getState().rowSelection)
+                const selectedContainerIds = Object.keys(
+                  table.getState().rowSelection
+                )
                   .filter((key) => table.getState().rowSelection[key])
                   .map((key) => {
                     const index = parseInt(key, 10);
-                    const selectedContainer = selectedContainers[index]; 
+                    const selectedContainer = selectedContainers[index];
                     return selectedContainer?.id;
                   })
                   .filter((id) => id !== undefined);
 
                 if (selectedContainerIds.length > 0) {
                   const idsString = selectedContainerIds.join(',');
-                  router.push(`/dashboard/container/${idsString}/delete`);
+                  routerPush(`/dashboard/container/${idsString}/delete`);
                 }
               }}
-              disabled={
-                Object.keys(table.getState().rowSelection).length === 0
-              }
+              disabled={Object.keys(table.getState().rowSelection).length === 0}
               className="flex items-center cursor-pointer"
             >
               <Trash2 className="h-4 w-4 mr-2 text-red-600" />
@@ -152,9 +153,11 @@ export function ContainerTable({ containers }: ContainerTableProps) {
     Record<string, boolean>
   >({});
 
+  const router = useRouter();
+
   const table = useReactTable({
-    data: containers, 
-    columns,
+    data: containers,
+    columns: columns(router.push),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -209,7 +212,7 @@ export function ContainerTable({ containers }: ContainerTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns(router.push).length}
                   className="h-24 text-center"
                 >
                   <div className="font-medium gap-4 p-4 items-center flex flex-col text-center">
@@ -219,7 +222,7 @@ export function ContainerTable({ containers }: ContainerTableProps) {
                       src="/empty_folder.svg"
                       alt="Imagem de pasta vazia"
                     />
-                    Nenhum container encontrado.
+                    Nenhuma caixa encontrada.
                   </div>
                 </TableCell>
               </TableRow>

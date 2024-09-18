@@ -46,11 +46,16 @@ export const RegisterForm = () => {
     });
   };
 
+  const hasPayment = new URLSearchParams(window.location.search).has('payment');
+
+
+  const backButtonHref = hasPayment ? "/auth/login?payment" : "/auth/login";
+
   return (
     <CardWrapper
       headerLabel="Crie a sua conta aqui"
       backButtonLabel="Já tem uma conta?"
-      backButtonHref="/auth/login"
+      backButtonHref={backButtonHref}
       showSocial
     >
       <Form {...form}>

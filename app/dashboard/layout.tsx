@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { UserDropdown } from '../_components/landingPage/UserDropdown';
 import { currentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import ClientComponent from './ClientComponent';
 
 export default async function DashboardLayout({
   children,
@@ -50,9 +49,7 @@ export default async function DashboardLayout({
         />
       </header>
 
-      <main className="my-5">
-        {children}
-      </main>
+      <main className="my-5">{children}</main>
     </div>
   );
 }

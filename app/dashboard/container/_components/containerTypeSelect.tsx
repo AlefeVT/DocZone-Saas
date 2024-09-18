@@ -1,7 +1,6 @@
 'use client';
 
-import * as React from "react";
-import { useState } from 'react';
+import * as React from 'react';
 import {
   Select,
   SelectContent,
@@ -10,17 +9,16 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 type ContainerTypeSelectProps = {
   onSelectType: (type: string) => void;
 };
 
-export default function ContainerTypeSelect({ onSelectType }: ContainerTypeSelectProps) {
-  const [selectedType, setSelectedType] = useState('all');
-
+export default function ContainerTypeSelect({
+  onSelectType,
+}: ContainerTypeSelectProps) {
   const handleSelectChange = (value: string) => {
-    setSelectedType(value);
     onSelectType(value);
   };
 
@@ -28,7 +26,7 @@ export default function ContainerTypeSelect({ onSelectType }: ContainerTypeSelec
     <div className="mb-4">
       <Select onValueChange={handleSelectChange}>
         <SelectTrigger className="w-[100%]">
-          <SelectValue placeholder="Selecione o tipo de caixa que gostaria de visualziar " />
+          <SelectValue placeholder="Selecione o tipo de caixa que gostaria de visualizar" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -36,7 +34,9 @@ export default function ContainerTypeSelect({ onSelectType }: ContainerTypeSelec
             <SelectItem value="all">Todas as caixas cadastradas</SelectItem>
             <SelectItem value="no-children">Caixas sem caixas filha</SelectItem>
             <SelectItem value="no-parent">Caixas sem caixas pai</SelectItem>
-            <SelectItem value="with-parent-children">Caixas com caixas pai e filhas</SelectItem>
+            <SelectItem value="with-parent-children">
+              Caixas com caixas pai e filhas
+            </SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>

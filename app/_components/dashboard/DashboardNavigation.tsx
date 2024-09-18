@@ -10,13 +10,14 @@ const links = [
     href: '/dashboard',
   },
   {
-    name: 'Documentos',
-    href: '/dashboard/document',
-  },
-  {
     name: 'Caixas',
     href: '/dashboard/container',
   },
+  {
+    name: 'Documentos',
+    href: '/dashboard/document',
+  },
+
   // {
   //   name: 'Assinaturas',
   //   href: '/dashboard/signature',

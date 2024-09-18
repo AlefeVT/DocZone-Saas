@@ -35,11 +35,17 @@ export default function DeleteRoute({ params }: { params: { id: string } }) {
     setIsLoading(true);
     try {
       await axios.post('/api/remove-container', { containerId });
-      toast.success(isMultiple ? 'Caixas excluídas com sucesso!' : 'Caixa excluída com sucesso!');
+      toast.success(
+        isMultiple
+          ? 'Caixas excluídas com sucesso!'
+          : 'Caixa excluída com sucesso!'
+      );
       router.push('/dashboard/container');
     } catch (error) {
       console.error('Error deleting container:', error);
-      toast.error(isMultiple ? 'Erro ao excluir as caixas.' : 'Erro ao excluir a caixa.');
+      toast.error(
+        isMultiple ? 'Erro ao excluir as caixas.' : 'Erro ao excluir a caixa.'
+      );
     } finally {
       setIsLoading(false);
     }

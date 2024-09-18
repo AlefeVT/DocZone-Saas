@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { NextRequest, NextResponse } from 'next/server';
 import { s3Client } from '../s3client-config';
 import { PrismaClient } from '@prisma/client';
+import { SpaceService } from '../get-space/route';
 
 class FileService {
   static prisma = new PrismaClient();
@@ -58,11 +59,25 @@ class FileController {
       return redirect('/auth/login');
     }
 
-    // Corrigido: usar await para resolver a key
+    // Verificação de espaço antes de permitir o upload
+    const fileSizeInKB = parseInt(fileSize, 10); // Convertendo para KB
+    const canStore = await SpaceService.canUserStoreFile(user.id, fileSizeInKB);
+
+    if (!canStore) {
+      return this.createJsonResponse(
+        { error: 'Insufficient storage space' },
+        403
+      );
+    }
+
+    // Gerar a chave do arquivo
     const key = await this.generateFileKey(user.id, containerId, fileType);
 
     try {
+      // Gera a URL de upload assinada
       const uploadUrl = await FileService.generateSignedUrl(key, fileType);
+
+      // Cria o registro do arquivo no banco de dados
       await FileService.createFileRecord(
         user.id,
         containerId,

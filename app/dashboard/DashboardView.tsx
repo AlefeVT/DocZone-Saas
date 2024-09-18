@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -10,14 +10,28 @@ import { DocumentLineChart } from './_components/DocumentLineChart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 
+// Função para formatar o tamanho de armazenamento em KB, MB, ou GB
+const formatStorageSize = (sizeInKB: number) => {
+  if (sizeInKB >= 1024 * 1024) {
+    return `${(sizeInKB / (1024 * 1024)).toFixed(2)} GB`;
+  } else if (sizeInKB >= 1024) {
+    return `${(sizeInKB / 1024).toFixed(2)} MB`;
+  } else {
+    return `${sizeInKB.toFixed(2)} KB`;
+  }
+};
+
 export default function DashboardView() {
   const [loading, setLoading] = useState(true);
   const [animatedData, setAnimatedData] = useState({
     totalDocuments: 0,
     totalContainers: 0,
-    totalStorageUsedSize: 0,
-    totalStorageUsedUnit: '',
-    storageLimit: 100, // Por exemplo, 100 GB como o limite
+    totalStorageUsed: {
+      size: 0,
+      unit: 'KB',
+    },
+    storageLimit: 5, // Limite padrão para o plano Free (em GB)
+    planName: 'Plano Free',
   });
 
   const [dataBar, setDataBar] = useState([]);
@@ -29,13 +43,27 @@ export default function DashboardView() {
         const response = await fetch('/api/dashboard');
         const data = await response.json();
 
-        animateCountUp(
-          data.totalDocuments,
-          data.totalContainers,
+        console.log(data);
+
+        // Converte o limite de armazenamento de GB para KB
+        const storageLimitInKB = data.storageLimit * 1024 * 1024; // Converte GB para KB
+
+        // Converter o valor usado também para KB, se necessário
+        const totalStorageUsedInKB = convertToKB(
           data.totalStorageUsed.size,
-          data.totalStorageUsed.unit,
-          data.storageLimit
+          data.totalStorageUsed.unit
         );
+
+        setAnimatedData({
+          totalDocuments: data.totalDocuments,
+          totalContainers: data.totalContainers,
+          totalStorageUsed: {
+            size: totalStorageUsedInKB,
+            unit: 'KB',
+          },
+          storageLimit: storageLimitInKB, // Limite em KB
+          planName: data.subscriptionPlan,
+        });
 
         setDataBar(data.documentsPerContainer);
         setDataLine(data.documentCreationOverTime);
@@ -49,54 +77,21 @@ export default function DashboardView() {
     fetchDashboardData();
   }, []);
 
-  const animateCountUp = (
-    finalDocuments: number,
-    finalContainers: number,
-    finalStorageSize: number,
-    finalStorageUnit: string,
-    finalStorageLimit: number
-  ) => {
-    const duration = 2000;
-    const steps = 60;
-    let currentDocuments = 0;
-    let currentContainers = 0;
-    let currentStorageSize = 0;
-
-    const incrementDocuments = finalDocuments / steps;
-    const incrementContainers = finalContainers / steps;
-    const incrementStorageSize = finalStorageSize / steps;
-
-    const interval = setInterval(() => {
-      currentDocuments += incrementDocuments;
-      currentContainers += incrementContainers;
-      currentStorageSize += incrementStorageSize;
-
-      setAnimatedData({
-        totalDocuments: Math.min(Math.round(currentDocuments), finalDocuments),
-        totalContainers: Math.min(
-          Math.round(currentContainers),
-          finalContainers
-        ),
-        totalStorageUsedSize: Math.min(
-          parseFloat(currentStorageSize.toFixed(2)),
-          finalStorageSize
-        ),
-        totalStorageUsedUnit: finalStorageUnit,
-        storageLimit: finalStorageLimit,
-      });
-
-      if (
-        currentDocuments >= finalDocuments &&
-        currentContainers >= finalContainers &&
-        currentStorageSize >= finalStorageSize
-      ) {
-        clearInterval(interval);
-      }
-    }, duration / steps);
+  // Função para converter diferentes unidades de tamanho (KB, MB, GB) para KB
+  const convertToKB = (size: number, unit: string): number => {
+    switch (unit) {
+      case 'GB':
+        return size * 1024 * 1024;
+      case 'MB':
+        return size * 1024;
+      default:
+        return size; // Assume que já está em KB
+    }
   };
 
+  // Calcula a porcentagem usada, sempre comparando KB com KB
   const storagePercentage = Math.min(
-    (animatedData.totalStorageUsedSize / animatedData.storageLimit) * 100,
+    (animatedData.totalStorageUsed.size / animatedData.storageLimit) * 100,
     100
   );
 
@@ -127,18 +122,20 @@ export default function DashboardView() {
             />
             <InfoCard
               title="Armazenamento ocupado"
-              value={`${animatedData.totalStorageUsedSize} ${animatedData.totalStorageUsedUnit}`}
+              value={formatStorageSize(animatedData.totalStorageUsed.size)}
               icon={<Server size={25} className="text-gray-500" />}
               colorClass="text-primary"
             />
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>Armazenamento do Plano</CardTitle>
+                <CardTitle>
+                  Armazenamento do Plano ({animatedData.planName})
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p>
-                  {animatedData.totalStorageUsedSize} / {animatedData.storageLimit}{' '}
-                  {animatedData.totalStorageUsedUnit}
+                  {formatStorageSize(animatedData.totalStorageUsed.size)} /{' '}
+                  {formatStorageSize(animatedData.storageLimit)}
                 </p>
                 <Progress value={storagePercentage} />
                 <p className="text-xs mt-2">
@@ -153,7 +150,6 @@ export default function DashboardView() {
       </div>
 
       <Separator className="my-8" />
-
       <div className="flex flex-col lg:flex-row lg:space-x-6">
         <div className="flex-1 mb-6 lg:mb-0">
           <Card>

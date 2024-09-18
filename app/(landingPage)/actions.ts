@@ -1,15 +1,19 @@
-"use server";
+'use server';
 
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || '');
 
-export async function sendContactEmail(name: string, email: string, message: string) {
+export async function sendContactEmail(
+  name: string,
+  email: string,
+  message: string
+) {
   try {
     await resend.emails.send({
       from: 'DocZone - Novo Contato <onboarding@resend.dev>',
-      to: ['alefevt@gmail.com'], 
-      subject: `Contato de ${name}`, 
+      to: ['alefevt@gmail.com'],
+      subject: `Contato de ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 0 auto;">
           <div style="background-color: #4169E1; padding: 20px; border-top-left-radius: 10px; border-top-right-radius: 10px; color: white; text-align: center;">

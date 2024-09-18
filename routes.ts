@@ -31,4 +31,4 @@ export const apiAuthPrefix = '/api/auth';
  */
 export const DEFAULT_LOGIN_REDIRECT = '/dashboard';
 
-export const LANDING_PAGE_ROUTE = '/'
+export const LANDING_PAGE_ROUTE = '/';

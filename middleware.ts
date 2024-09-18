@@ -17,7 +17,7 @@ export default auth((req) => {
   if (nextUrl.pathname === '/api/webhooks/stripe') {
     return null; // Ignorar autenticação para essa rota
   }
-  
+
   const isLoggedIn = !!req.auth;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
@@ -29,8 +29,7 @@ export default auth((req) => {
   }
 
   if (isAuthRoute) {
-
-    if ((nextUrl.searchParams.has('payment')) && isLoggedIn) {
+    if (nextUrl.searchParams.has('payment') && isLoggedIn) {
       return Response.redirect(new URL(LANDING_PAGE_ROUTE, nextUrl));
     }
 
