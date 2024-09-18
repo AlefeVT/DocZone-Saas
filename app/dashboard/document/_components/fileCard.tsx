@@ -46,12 +46,15 @@ export default function FileCard({ file, url_signed_file }: FileCardProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   const handleViewFile = () => {
-    if (file.fileType === "application/pdf" || file.fileType.startsWith("image/")) {
+    if (
+      file.fileType === 'application/pdf' ||
+      file.fileType.startsWith('image/')
+    ) {
       setIsModalOpen(true);
     } else {
-      toast("Visualização não suportada",{
+      toast('Visualização não suportada', {
         icon: <CircleAlert />,
-        description: "Só é possível visualizar PDFs e imagens.",
+        description: 'Só é possível visualizar PDFs e imagens.',
       });
     }
   };
@@ -93,7 +96,7 @@ export default function FileCard({ file, url_signed_file }: FileCardProps) {
       )
     ) {
       return (
-        <div className='flex flex-col justify-center'>
+        <div className="flex flex-col justify-center">
           <FileSpreadsheetIcon className="h-36 w-36 text-gray-500" />
           <p className="text-gray-700 mt-2">
             Não é possível visualizar documentos que não sejam PDFs ou imagens.
@@ -102,7 +105,7 @@ export default function FileCard({ file, url_signed_file }: FileCardProps) {
       );
     } else {
       return (
-        <div className='flex flex-col justify-center'>
+        <div className="flex flex-col justify-center">
           <FileTextIcon className="h-36 w-36 text-gray-500 mx-auto" />
           <p className="text-gray-700 mt-2">
             Não é possível visualizar documentos que não sejam PDFs ou imagens.

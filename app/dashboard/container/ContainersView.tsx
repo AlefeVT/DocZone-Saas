@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import { Header } from './_components/containerPageHeader';
 import { SearchBar } from './_components/containerSearchBar';
 import { Content } from './_components/containerContent';
-import { listContainers, GetContainersWithoutChildren, GetContainersWithoutParent } from './actions';
+import {
+  listContainers,
+  GetContainersWithoutChildren,
+  GetContainersWithoutParent,
+} from './actions';
 import ContainerTypeSelect from './_components/containerTypeSelect';
 
 export default function ContainerView() {
@@ -62,7 +66,6 @@ export default function ContainerView() {
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <ContainerTypeSelect onSelectType={setContainerType} />
       </div>
-
 
       <Content loading={loading} containers={filteredContainers} />
     </div>

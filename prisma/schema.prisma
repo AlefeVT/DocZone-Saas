@@ -22,7 +22,8 @@ model User {
   twoFactorConfirmation TwoFactorConfirmation?
 
   Subscription Subscription?
-  customerId   String?
+  customerId   String?       @unique
+  plan         String        @default("free")
 
   files      File[]
   signatures Signature[]
@@ -33,9 +34,9 @@ model User {
 
 model Subscription {
   id        String   @id @default(cuid()) @map("_id")
-  userId    String   @unique 
-  plan      String
-  period    String
+  userId    String   @unique
+  plan      String @default("free")
+  period    String @default("monthly")
   startDate DateTime @default(now())
   endDate   DateTime
 

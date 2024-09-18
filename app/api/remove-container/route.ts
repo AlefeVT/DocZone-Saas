@@ -92,7 +92,8 @@ class ContainerController {
     if (!decodedContainerIds || decodedContainerIds.length === 0) {
       return this.createJsonResponse(
         {
-          error: 'Os IDs dos containers são obrigatórios e devem ser um array de strings',
+          error:
+            'Os IDs dos containers são obrigatórios e devem ser um array de strings',
         },
         400
       );
@@ -113,7 +114,9 @@ class ContainerController {
 
         if (!container) {
           return this.createJsonResponse(
-            { error: `Container com ID ${containerId} não encontrado ou não pertence ao usuário` },
+            {
+              error: `Container com ID ${containerId} não encontrado ou não pertence ao usuário`,
+            },
             404
           );
         }

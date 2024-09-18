@@ -13,6 +13,7 @@ import { GetContainersWithoutChildren } from '../../container/actions';
 import { fileUploadSchema } from '@/schemas';
 import { toast } from 'sonner';
 import SearchableSelect from '@/components/SearchableSelect';
+import UpgradeModal from './_components/UpgradeModal';
 
 type ErrorState = {
   selectedFile?: string;
@@ -31,6 +32,7 @@ export default function DocumentCreateView() {
   const [errors, setErrors] = useState<ErrorState>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [containers, setContainers] = useState<SelectItemType[]>([]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false); 
   const router = useRouter();
 
   useEffect(() => {
@@ -59,10 +61,14 @@ export default function DocumentCreateView() {
 
   const handleError = (errorState: ErrorState) => {
     console.error('Erro na validação (view):', errorState);
-    toast('Erro ao criar documento', {
-      icon: <AlertCircle />,
-      description: 'Houve um problema ao criar o documento. Por favor, tente novamente.',
-    });
+
+    // Exibir toast de erro apenas se não for relacionado ao espaço insuficiente
+    if (errorState.selectedFile !== 'Insufficient storage space') {
+      toast('Erro ao criar documento', {
+        icon: <AlertCircle />,
+        description: 'Houve um problema ao criar o documento. Por favor, tente novamente.',
+      });
+    }
     setErrors(errorState);
   };
 
@@ -74,8 +80,7 @@ export default function DocumentCreateView() {
     }
   };
 
-  const clearFileError = () =>
-    setErrors((prevErrors) => ({ ...prevErrors, selectedFile: undefined }));
+  const clearFileError = () => setErrors((prevErrors) => ({ ...prevErrors, selectedFile: undefined }));
 
   const removeFile = (index: number) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
@@ -112,7 +117,8 @@ export default function DocumentCreateView() {
           selectedContainer!,
           setIsLoading,
           handleSuccess,
-          handleError
+          handleError,
+          setShowUpgradeModal // Passa o controle do modal para o controlador
         );
       } catch (error) {
         console.error('Erro durante o envio (view):', error);
@@ -149,25 +155,20 @@ export default function DocumentCreateView() {
 
         {selectedFiles.length === 0 ? (
           <div className="space-y-2">
-            <FileUploadDropzone
-              onFileChange={(e) => handleFileChange(e.target.files)}
-            />
-            {errors.selectedFile && (
-              <p className="text-red-500">{errors.selectedFile}</p>
-            )}
+            <FileUploadDropzone onFileChange={(e) => handleFileChange(e.target.files)} />
+            {errors.selectedFile && <p className="text-red-500">{errors.selectedFile}</p>}
           </div>
         ) : (
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
-             <div key={index} className="flex items-center justify-between w-full">
-             <SelectedFileCard
-               fileName={file.name}
-               fileSize={file.size}
-               showRemoveButton={true}
-               onRemoveClick={() => removeFile(index)}
-             />
-           </div>
-
+              <div key={index} className="flex items-center justify-between w-full">
+                <SelectedFileCard
+                  fileName={file.name}
+                  fileSize={file.size}
+                  showRemoveButton={true}
+                  onRemoveClick={() => removeFile(index)}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -176,6 +177,14 @@ export default function DocumentCreateView() {
           <SubmitButton text="Carregar" isLoading={isLoading} />
         </div>
       </form>
+
+      {/* Modal de aviso para upgrade */}
+      {showUpgradeModal && (
+        <UpgradeModal
+          onClose={() => setShowUpgradeModal(false)}
+          onUpgradeClick={() => router.push('/dashboard/plans')} // Direciona para a página de upgrade
+        />
+      )}
     </div>
   );
 }

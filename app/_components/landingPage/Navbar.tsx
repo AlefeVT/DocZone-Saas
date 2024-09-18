@@ -26,11 +26,11 @@ export async function Navbar() {
               <UserDropdown
                 email={user.email as string}
                 name={user.name as string}
-                userImage={user.image ?? `https://avatar.vercel.sh/${user.name}`}
+                userImage={
+                  user.image ?? `https://avatar.vercel.sh/${user.name}`
+                }
               />
             </div>
-
-
           </>
         ) : (
           <div className="md:flex md:flex-1 md:items-center md:justify-end md:space-x-2">
@@ -38,9 +38,9 @@ export async function Navbar() {
               <Link href={'/auth/login'}>Conectar</Link>
             </Button>
 
-            <Button variant={'default'} asChild>
-              <Link href={'/auth/register'}>Rergistrar-se</Link>
-            </Button>
+            {/* <Button variant={'default'} asChild>
+              <Link href={'/auth/register'}>Registrar-se</Link>
+            </Button> */}
           </div>
         )}
       </div>

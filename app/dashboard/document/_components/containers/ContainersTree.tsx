@@ -99,7 +99,6 @@ const ContainerTree = ({ onSelectContainer }: ContainerTreeProps) => {
 
   return (
     <div className="mx-auto max-w-full px-4">
-
       <div className="relative w-1/2 mb-6">
         <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input

@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -6,13 +6,11 @@ import { ArrowRightIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-
 export function HeroSection() {
-
   const router = useRouter();
 
   const scrollToFeatures = (e: React.MouseEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     const featuresSection = document.getElementById('features');
     if (featuresSection) {
       featuresSection.scrollIntoView({ behavior: 'smooth' });
@@ -20,9 +18,9 @@ export function HeroSection() {
   };
 
   const redirectToLogin = (e: React.MouseEvent) => {
-    e.preventDefault(); 
-    router.push("/auth/register");
-  }
+    e.preventDefault();
+    router.push('/auth/register');
+  };
 
   return (
     <section className="bg-gray-50  py-16 px-6 md:py-24 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8">

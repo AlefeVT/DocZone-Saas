@@ -1,13 +1,59 @@
 import { PrismaClient } from '@prisma/client';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { currentUser } from '@/lib/auth';
 
 export default class DashboardService {
   async getDashboardInfo() {
     const prisma = new PrismaClient();
+
+    // Obtenção de informações do usuário atual e seu plano de assinatura
+    const user = await currentUser();
+
+    if (!user || !user.id) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    const userWithSubscription = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      include: {
+        Subscription: true,
+      },
+    });
+
+    if (!userWithSubscription) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    let subscriptionPlan = 'Plano Free';
+    let storageLimit = 5; // Limite de armazenamento padrão (5 GB para plano gratuito)
+
+    if (userWithSubscription.Subscription) {
+      subscriptionPlan = userWithSubscription.Subscription.plan;
+      // Definir limites de armazenamento com base no plano
+      switch (subscriptionPlan) {
+        case 'basic':
+          storageLimit = 50;
+          break;
+        case 'intermediate':
+          storageLimit = 100;
+          break;
+        case 'advanced':
+          storageLimit = 150;
+          break;
+        case 'professional':
+          storageLimit = 200;
+          break;
+        default:
+          storageLimit = 5; // Free plan default
+      }
+    }
+
+    // Cálculo das outras métricas do dashboard
     const totalDocuments = await prisma.file.count();
     const totalContainers = await prisma.container.count();
     const totalStorageUsed = await this.calculateTotalStorageUsed();
-
     const documentsPerContainer = await this.getDocumentsPerContainer();
     const documentCreationOverTime = await this.getDocumentCreationOverTime();
 
@@ -17,6 +63,8 @@ export default class DashboardService {
       totalStorageUsed,
       documentsPerContainer,
       documentCreationOverTime,
+      subscriptionPlan,
+      storageLimit,
     };
   }
 
@@ -48,16 +96,13 @@ export default class DashboardService {
     return { size, unit: sizes[i] };
   }
 
-  // Função para obter a quantidade de documentos por container e seus filhos
   private async getDocumentsPerContainer(): Promise<
     { name: string; documentos: number }[]
   > {
     const prisma = new PrismaClient();
 
-    // Definir um limite de containers a serem exibidos (ajuste conforme o tamanho do gráfico)
     const containerLimit = 10;
 
-    // Busca os containers de nível superior (sem pais) com todos os filhos recursivamente
     const parentContainers = await prisma.container.findMany({
       where: {
         parentId: null,
@@ -83,7 +128,7 @@ export default class DashboardService {
                 _count: {
                   select: { files: true },
                 },
-                children: true, // Recursivamente pega todos os filhos
+                children: true,
               },
             },
           },
@@ -91,7 +136,6 @@ export default class DashboardService {
       },
     });
 
-    // Função auxiliar para contar documentos em todos os containers filhos recursivamente
     const countDocumentsInChildren = (
       children: {
         id: string;
@@ -114,7 +158,6 @@ export default class DashboardService {
       }, 0);
     };
 
-    // Mapeia os containers principais, conta documentos em seus filhos e ordena pelos mais recentes
     let containersWithDocuments = parentContainers.map((container) => {
       const parentFilesCount = container._count.files;
       const childFilesCount = countDocumentsInChildren(
@@ -129,10 +172,9 @@ export default class DashboardService {
       };
     });
 
-    // Ordena os containers pelos mais recentes e aplica o limite de containers
     containersWithDocuments = containersWithDocuments
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()) // Ordena por data de criação (mais recente primeiro)
-      .slice(0, containerLimit); // Aplica o limite de containers
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, containerLimit);
 
     return containersWithDocuments.map(({ name, documentos }) => ({
       name,
@@ -140,7 +182,6 @@ export default class DashboardService {
     }));
   }
 
-  // Função para obter o número de arquivos criados ao longo do tempo
   private async getDocumentCreationOverTime(): Promise<
     { data: string; quantidade: number }[]
   > {
@@ -156,13 +197,12 @@ export default class DashboardService {
       },
       where: {
         createdAt: {
-          gte: startDate, // A partir do início do mês
-          lte: endDate, // Até o final do mês
+          gte: startDate,
+          lte: endDate,
         },
       },
     });
 
-    // Agrupar por data e remover duplicatas
     const groupedData = documentsCreatedOverTime.reduce(
       (acc, entry) => {
         const date = entry.createdAt.toISOString().slice(0, 10);
