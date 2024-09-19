@@ -56,13 +56,25 @@ export async function POST(req: Request) {
               const endDate = new Date();
               let plan = '';
 
-              if (priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID) {
+              if (
+                priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID ||
+                priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID
+              ) {
                 plan = 'basic';
-              } else if (priceId === process.env.STRIPE_YEARLY_INTERMEDIATE_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_INTERMEDIATE_PRICE_ID) {
+              } else if (
+                priceId === process.env.STRIPE_YEARLY_INTERMEDIATE_PRICE_ID ||
+                priceId === process.env.STRIPE_MONTHLY_INTERMEDIATE_PRICE_ID
+              ) {
                 plan = 'intermediate';
-              } else if (priceId === process.env.STRIPE_YEARLY_ADVANCED_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_ADVANCED_PRICE_ID) {
+              } else if (
+                priceId === process.env.STRIPE_YEARLY_ADVANCED_PRICE_ID ||
+                priceId === process.env.STRIPE_MONTHLY_ADVANCED_PRICE_ID
+              ) {
                 plan = 'advanced';
-              } else if (priceId === process.env.STRIPE_YEARLY_PROFESSIONAL_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_PROFESSIONAL_PRICE_ID) {
+              } else if (
+                priceId === process.env.STRIPE_YEARLY_PROFESSIONAL_PRICE_ID ||
+                priceId === process.env.STRIPE_MONTHLY_PROFESSIONAL_PRICE_ID
+              ) {
                 plan = 'professional';
               } else {
                 throw new Error('Preço do plano inválido!');
@@ -118,8 +130,12 @@ export async function POST(req: Request) {
             },
           });
         } else {
-          console.error('Usuário não encontrado na ação de deletar a assinatura!');
-          throw new Error('Usuário não encontrado na ação de deletar a assinatura!');
+          console.error(
+            'Usuário não encontrado na ação de deletar a assinatura!'
+          );
+          throw new Error(
+            'Usuário não encontrado na ação de deletar a assinatura!'
+          );
         }
 
         break;
@@ -133,22 +149,36 @@ export async function POST(req: Request) {
         });
 
         if (user) {
-          const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+          const subscription = await stripe.subscriptions.retrieve(
+            invoice.subscription as string
+          );
           const priceId = subscription.items.data[0].price.id;
 
           let newPlan = '';
           let period = '';
 
-          if (priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID) {
+          if (
+            priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID
+          ) {
             newPlan = 'basic';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
-          } else if (priceId === process.env.STRIPE_YEARLY_INTERMEDIATE_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_INTERMEDIATE_PRICE_ID) {
+          } else if (
+            priceId === process.env.STRIPE_YEARLY_INTERMEDIATE_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_INTERMEDIATE_PRICE_ID
+          ) {
             newPlan = 'intermediate';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
-          } else if (priceId === process.env.STRIPE_YEARLY_ADVANCED_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_ADVANCED_PRICE_ID) {
+          } else if (
+            priceId === process.env.STRIPE_YEARLY_ADVANCED_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_ADVANCED_PRICE_ID
+          ) {
             newPlan = 'advanced';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
-          } else if (priceId === process.env.STRIPE_YEARLY_PROFESSIONAL_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_PROFESSIONAL_PRICE_ID) {
+          } else if (
+            priceId === process.env.STRIPE_YEARLY_PROFESSIONAL_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_PROFESSIONAL_PRICE_ID
+          ) {
             newPlan = 'professional';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
           }
@@ -191,52 +221,64 @@ export async function POST(req: Request) {
         const user = await prisma.user.findUnique({
           where: { customerId: subscription.customer as string },
         });
-      
+
         if (!user) {
           console.error('Usuário não encontrado na atualização de assinatura!');
-          throw new Error('Usuário não encontrado na atualização de assinatura!');
+          throw new Error(
+            'Usuário não encontrado na atualização de assinatura!'
+          );
         }
-      
+
         let updatedPlan = '';
         let period = '';
-      
-        if (!subscription.items.data[0].price || subscription.status === 'canceled' || subscription.cancel_at_period_end) {
+
+        if (
+          !subscription.items.data[0].price ||
+          subscription.status === 'canceled' ||
+          subscription.cancel_at_period_end
+        ) {
           updatedPlan = 'free';
           period = 'monthly';
         } else {
           const priceId = subscription.items.data[0].price.id;
-          if (priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID) {
+          if (
+            priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID
+          ) {
             updatedPlan = 'basic';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
-          } else if (priceId === process.env.STRIPE_YEARLY_INTERMEDIATE_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_INTERMEDIATE_PRICE_ID) {
+          } else if (
+            priceId === process.env.STRIPE_YEARLY_INTERMEDIATE_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_INTERMEDIATE_PRICE_ID
+          ) {
             updatedPlan = 'intermediate';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
-          } else if (priceId === process.env.STRIPE_YEARLY_ADVANCED_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_ADVANCED_PRICE_ID) {
+          } else if (
+            priceId === process.env.STRIPE_YEARLY_ADVANCED_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_ADVANCED_PRICE_ID
+          ) {
             updatedPlan = 'advanced';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
-          } else if (priceId === process.env.STRIPE_YEARLY_PROFESSIONAL_PRICE_ID || priceId === process.env.STRIPE_MONTHLY_PROFESSIONAL_PRICE_ID) {
+          } else if (
+            priceId === process.env.STRIPE_YEARLY_PROFESSIONAL_PRICE_ID ||
+            priceId === process.env.STRIPE_MONTHLY_PROFESSIONAL_PRICE_ID
+          ) {
             updatedPlan = 'professional';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
           }
         }
-      
+
         updatedPlan = updatedPlan || 'free';
         period = period || 'monthly';
-      
-        console.log(`Updated Plan: ${updatedPlan}, Period: ${period}`);
-      
+
         try {
-          console.log('Enviando dados para tabela User:', { plan: updatedPlan });
-          
           await prisma.user.update({
             where: { id: user.id },
             data: {
               plan: updatedPlan,
             },
           });
-      
-          console.log('Enviando dados para tabela Subscription:', { plan: updatedPlan, period });
-      
+
           await prisma.subscription.upsert({
             where: { userId: user.id },
             create: {
@@ -253,56 +295,26 @@ export async function POST(req: Request) {
               endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
             },
           });
-      
-          const updatedSubscription = await prisma.subscription.findUnique({
+
+          await prisma.subscription.findUnique({
             where: { userId: user.id },
           });
-          console.log(`Plano salvo na Subscription: ${updatedSubscription?.plan}, Período: ${updatedSubscription?.period}`);
-      
+
           // Verificando o estado final da subscription
           const finalSubscription = await prisma.subscription.findUnique({
             where: { userId: user.id },
           });
           if (!finalSubscription?.plan || !finalSubscription?.period) {
-            console.error(`Erro: Campos vazios após o salvamento. Plan: ${finalSubscription?.plan}, Period: ${finalSubscription?.period}`);
-          } else {
-            console.log(`Campos salvos corretamente. Plan: ${finalSubscription?.plan}, Period: ${finalSubscription?.period}`);
+            console.error(
+              `Erro: Campos vazios após o salvamento. Plan: ${finalSubscription?.plan}, Period: ${finalSubscription?.period}`
+            );
           }
-      
         } catch (error) {
           console.error('Erro ao atualizar o plano no Prisma:', error);
         }
-      
+
         break;
       }
-      
-      
-      
-      case 'customer.updated': {
-        console.log('Evento customer.updated recebido');
-        break;
-      }
-      
-      case 'invoice.created': {
-        console.log('Evento invoice.created recebido');
-        break;
-      }
-      
-      case 'invoice.finalized': {
-        console.log('Evento invoice.finalized recebido');
-        break;
-      }
-      
-      case 'invoice.paid': {
-        console.log('Evento invoice.paid recebido');
-        break;
-      }
-      
-      case 'invoiceitem.created': {
-        console.log('Evento invoiceitem.created recebido');
-        break;
-      }   
-      
 
       default:
         console.log(`Unhandled event type ${event.type}`);

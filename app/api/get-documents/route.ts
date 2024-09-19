@@ -75,7 +75,7 @@ class FileController {
         }))
       );
 
-      console.log('chamou api documents');
+      // console.log('chamou api documents');
       return this.createJsonResponse({ files: filesWithUrls });
     } catch (error) {
       console.error('Error generating access URLs:', error);

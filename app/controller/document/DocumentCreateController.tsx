@@ -6,8 +6,11 @@ export class DocumentCreateController {
     selectedContainer: string,
     setIsLoading: (loading: boolean) => void,
     onSuccess: (fileUrls: string[]) => void,
-    onError: (errors: { selectedFile?: string; selectedContainer?: string }) => void,
-    setShowUpgradeModal: (show: boolean) => void // Adiciona função para exibir o modal de upgrade
+    onError: (errors: {
+      selectedFile?: string;
+      selectedContainer?: string;
+    }) => void,
+    setShowUpgradeModal: (show: boolean) => void
   ) {
     setIsLoading(true);
 
@@ -25,7 +28,10 @@ export class DocumentCreateController {
     try {
       const fileUrls = await Promise.all(
         selectedFiles.map(async (file) => {
-          const key = await DocumentCreateService.uploadToS3(file, selectedContainer);
+          const key = await DocumentCreateService.uploadToS3(
+            file,
+            selectedContainer
+          );
           return key ? DocumentCreateService.generateFileUrl(key) : null;
         })
       );
@@ -34,11 +40,12 @@ export class DocumentCreateController {
     } catch (error: any) {
       console.error('Erro durante o upload do arquivo (controller):', error);
 
-      // Verifica se o erro é "Insufficient storage space"
       if (error?.error === 'Insufficient storage space') {
-        setShowUpgradeModal(true); // Exibe o modal de upgrade
+        setShowUpgradeModal(true);
       } else {
-        onError({ selectedFile: 'Erro ao carregar arquivos. Tente novamente.' });
+        onError({
+          selectedFile: 'Erro ao carregar arquivos. Tente novamente.',
+        });
       }
     } finally {
       setIsLoading(false);

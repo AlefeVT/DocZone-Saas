@@ -52,7 +52,7 @@ export default function FileCard({ file, url_signed_file }: FileCardProps) {
     ) {
       setIsModalOpen(true);
     } else {
-      toast('Visualização não suportada', {
+      toast.warning('Visualização não suportada', {
         icon: <CircleAlert />,
         description: 'Só é possível visualizar PDFs e imagens.',
       });

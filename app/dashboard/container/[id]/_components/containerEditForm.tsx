@@ -49,7 +49,6 @@ export default function ContainerEditForm({ data }: { data: any }) {
       handleError({
         name: 'Ocorreu um erro ao atualizar a caixa. Tente novamente.',
       });
-      console.log(error);
     } finally {
       setIsLoading(false);
     }

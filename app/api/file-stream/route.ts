@@ -57,7 +57,7 @@ class FileController {
         s3Response.Body as Readable
       );
 
-      console.log('chamou stream');
+      // console.log('chamou stream');
       return new NextResponse(buffer, {
         headers: {
           'Content-Type': file.fileType,

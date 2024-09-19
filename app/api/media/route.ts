@@ -147,17 +147,16 @@ class FileController {
     let currentContainerId: string | null = containerId;
 
     while (currentContainerId) {
-      // Corrigido: Aceitar `Container | null` para lidar com a possibilidade de `null`
       const container: Container | null = await prisma.container.findUnique({
         where: { id: currentContainerId },
         select: { id: true, name: true, parentId: true },
       });
 
       if (container) {
-        hierarchy.unshift(container.name); // Adicionar o nome do container no início
+        hierarchy.unshift(container.name);
         currentContainerId = container.parentId;
       } else {
-        currentContainerId = null; // Não há mais containers pais
+        currentContainerId = null;
       }
     }
 

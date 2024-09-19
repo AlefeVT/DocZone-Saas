@@ -69,7 +69,7 @@ export default function ContainerCreateView() {
       handleError({
         name: 'Ocorreu um erro ao criar a caixa. Tente novamente.',
       });
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }

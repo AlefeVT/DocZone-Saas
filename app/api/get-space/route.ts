@@ -16,28 +16,36 @@ export class SpaceService {
 
   static getPlanLimitBytes(plan: string): number {
     // Converte o limite de KB para bytes
-    return this.PLAN_LIMITS[plan] * 1024; 
+    return this.PLAN_LIMITS[plan] * 1024;
   }
 
   static async calculateUsedSpaceBytes(userId: string): Promise<number> {
     const files = await prisma.file.findMany({
       where: { userId },
-      select: { fileSize: true }, 
+      select: { fileSize: true },
     });
 
     // Retorna o espaço total utilizado em bytes
-    return files.reduce((total, file) => total + parseInt(file.fileSize, 10), 0);
+    return files.reduce(
+      (total, file) => total + parseInt(file.fileSize, 10),
+      0
+    );
   }
 
-  static async canUserStoreFile(userId: string, fileSizeBytes: number): Promise<boolean> {
+  static async canUserStoreFile(
+    userId: string,
+    fileSizeBytes: number
+  ): Promise<boolean> {
     const user = await this.getUser(userId);
     const planLimitBytes = this.getPlanLimitBytes(user.plan);
 
     const usedSpaceBytes = await this.calculateUsedSpaceBytes(userId);
 
-    console.log(`Plano: ${user.plan} | Limite: ${planLimitBytes} bytes | Espaço utilizado: ${usedSpaceBytes} bytes | Arquivo: ${fileSizeBytes} bytes`);
+    // console.log(
+    //   `Plano: ${user.plan} | Limite: ${planLimitBytes} bytes | Espaço utilizado: ${usedSpaceBytes} bytes | Arquivo: ${fileSizeBytes} bytes`
+    // );
 
-    return (usedSpaceBytes + fileSizeBytes) <= planLimitBytes;
+    return usedSpaceBytes + fileSizeBytes <= planLimitBytes;
   }
 
   private static async getUser(userId: string) {
@@ -60,7 +68,10 @@ class SpaceController {
       const user = await this.getCurrentUser();
       const { fileSizeBytes } = this.validateAndGetParams(req);
 
-      const canStoreFile = await SpaceService.canUserStoreFile(user.id, fileSizeBytes);
+      const canStoreFile = await SpaceService.canUserStoreFile(
+        user.id,
+        fileSizeBytes
+      );
 
       if (canStoreFile) {
         return this.createSuccessResponse('User can store the file');
