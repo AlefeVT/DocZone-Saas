@@ -98,7 +98,7 @@ const ContainerTree = ({ onSelectContainer }: ContainerTreeProps) => {
   const handlePageChange = (newPage: number) => setCurrentPage(newPage);
 
   return (
-    <div className="mx-auto max-w-full px-4">
+    <div className="mx-auto max-w-full">
       <div className="relative w-1/2 mb-6">
         <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
@@ -110,11 +110,11 @@ const ContainerTree = ({ onSelectContainer }: ContainerTreeProps) => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
         {paginatedContainers.map((container) => (
           <div
             key={container.id}
-            className="bg-gray-100 border-l-4 border-blue-500 rounded-md shadow-lg p-4"
+            className="bg-gray-100 border-l-4 border-blue-500 rounded-md shadow-lg p-4 h-fit"
           >
             <ContainerNode
               container={container}

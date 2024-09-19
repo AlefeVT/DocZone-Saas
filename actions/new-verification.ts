@@ -7,7 +7,6 @@ import { PrismaClient } from '@prisma/client';
 const db = new PrismaClient();
 
 export const newVerification = async (token: string) => {
-  console.log(token);
   const existingToken = await getVerificationTokenByToken(token);
 
   if (!existingToken) {

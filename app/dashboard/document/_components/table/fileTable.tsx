@@ -60,7 +60,7 @@ export function FileTable({ files: initialFiles }: FileTableProps) {
     } else if (file.fileType.startsWith('image/')) {
       setFileUrl(file.url);
     } else {
-      toast('Visualização não suportada', {
+      toast.warning('Visualização não suportada', {
         icon: <CircleAlert />,
         description: 'Só é possível visualizar PDFs e imagens.',
       });

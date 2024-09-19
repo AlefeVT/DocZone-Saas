@@ -48,8 +48,7 @@ export const RegisterForm = () => {
 
   const hasPayment = new URLSearchParams(window.location.search).has('payment');
 
-
-  const backButtonHref = hasPayment ? "/auth/login?payment" : "/auth/login";
+  const backButtonHref = hasPayment ? '/auth/login?payment' : '/auth/login';
 
   return (
     <CardWrapper

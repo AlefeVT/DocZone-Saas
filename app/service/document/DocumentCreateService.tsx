@@ -2,7 +2,10 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 export class DocumentCreateService {
-  static validateFileUpload(data: { selectedFiles: File[]; selectedContainer: string }) {
+  static validateFileUpload(data: {
+    selectedFiles: File[];
+    selectedContainer: string;
+  }) {
     const errors: { selectedFile?: string; selectedContainer?: string } = {};
 
     if (data.selectedFiles.length === 0) {
@@ -23,9 +26,15 @@ export class DocumentCreateService {
     return { success: true, errors: {} };
   }
 
-  static async uploadToS3(file: File, selectedContainer: string): Promise<string | null> {
+  static async uploadToS3(
+    file: File,
+    selectedContainer: string
+  ): Promise<string | null> {
     try {
-      const { uploadUrl, key } = await this.getUploadUrl(file, selectedContainer);
+      const { uploadUrl, key } = await this.getUploadUrl(
+        file,
+        selectedContainer
+      );
 
       await axios.put(uploadUrl, file);
 
@@ -33,12 +42,14 @@ export class DocumentCreateService {
     } catch (error: any) {
       console.error('Erro ao carregar o arquivo (service):', error);
 
-      // Verifica se o erro é "Insufficient storage space"
-      if (error.response?.status === 403 && error.response?.data?.error === 'Insufficient storage space') {
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.error === 'Insufficient storage space'
+      ) {
         return Promise.reject({ error: 'Insufficient storage space' });
       }
 
-      toast('Falha ao carregar o arquivo');
+      toast.error('Falha ao carregar o arquivo');
       return null;
     }
   }

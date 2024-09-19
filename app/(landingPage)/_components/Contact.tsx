@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { sendContactEmail } from '../actions';
 import { toast } from 'sonner';
 import { contactFormSchema } from '@/schemas';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -70,21 +70,20 @@ export function ContactSection() {
         formData.message
       );
       if (response.success) {
-        toast('Email enviado com sucesso!', {
+        toast.success('Email enviado com sucesso!', {
           description:
             'Obrigado por entrar em contato. Responderemos em breve.',
-          icon: <CheckCircle className="text-green-500" />,
         });
         setFormData({ name: '', email: '', message: '' });
         setErrors({ name: '', email: '', message: '' });
       } else {
-        toast('Erro ao enviar o e-mail.', {
+        toast.error('Erro ao enviar o e-mail.', {
           description: response.error || 'Tente novamente.',
           icon: <XCircle className="text-red-500" />,
         });
       }
     } catch (err) {
-      toast('Ocorreu um erro ao enviar o formulário.', {
+      toast.error('Ocorreu um erro ao enviar o formulário.', {
         description: 'Por favor, tente novamente mais tarde.',
         icon: <XCircle className="text-red-500" />,
       });

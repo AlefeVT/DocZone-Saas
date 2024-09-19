@@ -43,8 +43,6 @@ export default function DashboardView() {
         const response = await fetch('/api/dashboard');
         const data = await response.json();
 
-        console.log(data);
-
         // Converte o limite de armazenamento de GB para KB
         const storageLimitInKB = data.storageLimit * 1024 * 1024; // Converte GB para KB
 

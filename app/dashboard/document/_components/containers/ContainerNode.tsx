@@ -54,21 +54,25 @@ const ContainerNode: React.FC<ContainerNodeProps> = ({
       </Button>
 
       {/* Renderiza os containers filhos, se abertos */}
-      {isOpen && container.children.length > 0 && (
-        <div className="pl-6">
-          {container.children.map((child) => (
-            <ContainerNode
-              key={child.id}
-              container={child}
-              isOpen={openContainers.includes(child.id)}
-              onSelect={onSelect}
-              onToggle={onToggle}
-              openContainers={openContainers}
-              isRoot={false}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-full' : 'max-h-0'}`}
+      >
+        {isOpen && container.children.length > 0 && (
+          <div className="pl-6">
+            {container.children.map((child) => (
+              <ContainerNode
+                key={child.id}
+                container={child}
+                isOpen={openContainers.includes(child.id)}
+                onSelect={onSelect}
+                onToggle={onToggle}
+                openContainers={openContainers}
+                isRoot={false}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

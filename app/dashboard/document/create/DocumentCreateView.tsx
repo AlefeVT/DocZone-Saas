@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import FileUploadDropzone from './_components/fileUploadDropzone';
 import SelectedFileCard from './_components/selectedFileCard';
@@ -28,11 +28,13 @@ type SelectItemType = {
 
 export default function DocumentCreateView() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
+  const [selectedContainer, setSelectedContainer] = useState<string | null>(
+    null
+  );
   const [errors, setErrors] = useState<ErrorState>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [containers, setContainers] = useState<SelectItemType[]>([]);
-  const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false); 
+  const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,8 +54,7 @@ export default function DocumentCreateView() {
   const handleSuccess = () => {
     setSelectedFiles([]);
     setErrors({});
-    toast('Documento criado com sucesso', {
-      icon: <CheckCircle />,
+    toast.success('Documento criado com sucesso', {
       description: 'O documento foi criado e salvo corretamente.',
     });
     router.push('/dashboard/document');
@@ -64,9 +65,9 @@ export default function DocumentCreateView() {
 
     // Exibir toast de erro apenas se não for relacionado ao espaço insuficiente
     if (errorState.selectedFile !== 'Insufficient storage space') {
-      toast('Erro ao criar documento', {
-        icon: <AlertCircle />,
-        description: 'Houve um problema ao criar o documento. Por favor, tente novamente.',
+      toast.error('Erro ao criar documento', {
+        description:
+          'Houve um problema ao criar o documento. Por favor, tente novamente.',
       });
     }
     setErrors(errorState);
@@ -80,7 +81,8 @@ export default function DocumentCreateView() {
     }
   };
 
-  const clearFileError = () => setErrors((prevErrors) => ({ ...prevErrors, selectedFile: undefined }));
+  const clearFileError = () =>
+    setErrors((prevErrors) => ({ ...prevErrors, selectedFile: undefined }));
 
   const removeFile = (index: number) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
@@ -122,9 +124,9 @@ export default function DocumentCreateView() {
         );
       } catch (error) {
         console.error('Erro durante o envio (view):', error);
-        toast('Erro ao enviar documento', {
-          icon: <AlertCircle />,
-          description: 'Ocorreu um erro ao enviar o documento. Tente novamente.',
+        toast.error('Erro ao enviar documento', {
+          description:
+            'Ocorreu um erro ao enviar o documento. Tente novamente.',
         });
         setIsLoading(false);
       }
@@ -155,13 +157,20 @@ export default function DocumentCreateView() {
 
         {selectedFiles.length === 0 ? (
           <div className="space-y-2">
-            <FileUploadDropzone onFileChange={(e) => handleFileChange(e.target.files)} />
-            {errors.selectedFile && <p className="text-red-500">{errors.selectedFile}</p>}
+            <FileUploadDropzone
+              onFileChange={(e) => handleFileChange(e.target.files)}
+            />
+            {errors.selectedFile && (
+              <p className="text-red-500">{errors.selectedFile}</p>
+            )}
           </div>
         ) : (
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
-              <div key={index} className="flex items-center justify-between w-full">
+              <div
+                key={index}
+                className="flex items-center justify-between w-full"
+              >
                 <SelectedFileCard
                   fileName={file.name}
                   fileSize={file.size}
