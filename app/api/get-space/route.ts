@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 
 export class SpaceService {
   private static readonly PLAN_LIMITS: Record<string, number> = {
-    free: 800, // 800 KB para o plano gratuito
+    // free: 5 * 1024 * 1024, // 5GB em KB
+    free: 800, // 5GB em KB
     basic: 50 * 1024 * 1024, // 50GB em KB
     intermediary: 100 * 1024 * 1024, // 100GB em KB
     advanced: 150 * 1024 * 1024, // 150GB em KB

@@ -10,7 +10,7 @@ export class DocumentEditService {
 
   static async updateDocument(formData: FormData) {
     try {
-      const response = await fetch('/api/update-media', {
+      const response = await fetch('/api/files-actions/update-file-s3', {
         method: 'PUT',
         body: formData,
       });

@@ -22,7 +22,7 @@ export default function DeleteRoute({ params }: { params: { id: string } }) {
   const handleDelete = async (fileIds: string[]) => {
     setIsLoading(true);
     try {
-      await axios.post('/api/remove-media', { fileIds });
+      await axios.post('/api/files-actions/remove-file-s3', { fileIds });
       toast.success('Documentos excluídos com sucesso!');
       router.push('/dashboard/document');
     } catch (error) {

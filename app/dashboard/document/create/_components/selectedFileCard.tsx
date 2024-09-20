@@ -35,6 +35,7 @@ export default function SelectedFileCard({
           size="icon"
           title="Remover"
           onClick={onRemoveClick}
+          type='button'
           className="ml-2"
         >
           <XCircle className="w-6 h-6 text-red-500" />

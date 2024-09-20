@@ -1,7 +1,7 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { NextResponse } from 'next/server';
-import { s3Client } from '../s3client-config';
+import { s3Client } from '../../s3client-config';
 import { currentUser } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { redirect } from 'next/navigation';

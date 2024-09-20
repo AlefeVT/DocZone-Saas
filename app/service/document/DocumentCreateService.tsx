@@ -60,13 +60,13 @@ export class DocumentCreateService {
     const fileSize = encodeURIComponent(file.size);
 
     const { data } = await axios.get(
-      `/api/media?fileType=${fileType}&fileName=${fileName}&fileSize=${fileSize}&containerId=${containerId}`
+      `/api/files-actions/create-file-s3?fileType=${fileType}&fileName=${fileName}&fileSize=${fileSize}&containerId=${containerId}`
     );
 
     return data;
   }
 
   static generateFileUrl(key: string): string {
-    return `/api/get-documents?key=${encodeURIComponent(key)}`;
+    return `/api/files-actions/get-documents?key=${encodeURIComponent(key)}`;
   }
 }

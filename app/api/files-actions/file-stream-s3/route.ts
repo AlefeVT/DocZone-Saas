@@ -1,9 +1,9 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
-import { s3Client } from '../s3client-config';
 import { currentUser } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { Readable } from 'stream';
+import { s3Client } from '../../s3client-config';
 
 class FileService {
   static prisma = new PrismaClient();
