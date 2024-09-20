@@ -4,9 +4,9 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
 import { redirect } from 'next/navigation';
 import { NextRequest, NextResponse } from 'next/server';
-import { s3Client } from '../s3client-config';
+import { s3Client } from '../../s3client-config';
 import { PrismaClient } from '@prisma/client';
-import { SpaceService } from '../get-space/route';
+import { SpaceService } from '../../get-space/route';
 
 class FileService {
   static prisma = new PrismaClient();

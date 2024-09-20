@@ -34,7 +34,7 @@ export default function DeleteRoute({ params }: { params: { id: string } }) {
   const handleDelete = async (containerId: string) => {
     setIsLoading(true);
     try {
-      await axios.post('/api/remove-container', { containerId });
+      await axios.post('/api/files-actions/remove-container-file-s3', { containerId });
       toast.success(
         isMultiple
           ? 'Caixas excluídas com sucesso!'

@@ -107,37 +107,8 @@ export async function POST(req: Request) {
         }
         break;
       }
-
-      case 'customer.subscription.deleted': {
-        const subscription = await stripe.subscriptions.retrieve(
-          (event.data.object as Stripe.Subscription).id
-        );
-        const user = await prisma.user.findUnique({
-          where: { customerId: subscription.customer as string },
-        });
-
-        if (user) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { plan: 'free' },
-          });
-
-          await prisma.subscription.update({
-            where: { userId: user.id },
-            data: {
-              plan: 'free',
-              endDate: new Date(),
-            },
-          });
-        } else {
-          console.error(
-            'Usuário não encontrado na ação de deletar a assinatura!'
-          );
-          throw new Error(
-            'Usuário não encontrado na ação de deletar a assinatura!'
-          );
-        }
-
+      case "billing_portal.session.created": {
+        console.log("AbriU O PORTAL DE PAGAMENTO");
         break;
       }
 
@@ -221,26 +192,26 @@ export async function POST(req: Request) {
         const user = await prisma.user.findUnique({
           where: { customerId: subscription.customer as string },
         });
-
+      
         if (!user) {
           console.error('Usuário não encontrado na atualização de assinatura!');
-          throw new Error(
-            'Usuário não encontrado na atualização de assinatura!'
-          );
+          throw new Error('Usuário não encontrado na atualização de assinatura!');
         }
-
+      
         let updatedPlan = '';
         let period = '';
-
-        if (
-          !subscription.items.data[0].price ||
-          subscription.status === 'canceled' ||
-          subscription.cancel_at_period_end
-        ) {
-          updatedPlan = 'free';
-          period = 'monthly';
+        let endDate = new Date();
+        let status = 'active'; // Novo campo de status
+      
+        // Verificar se a assinatura foi marcada para cancelamento
+        if (subscription.cancel_at_period_end || subscription.status === 'canceled') {
+          // Manter o plano atual até o final do período
+          updatedPlan = user.plan; // Mantém o plano atual
+          endDate = new Date(subscription.current_period_end * 1000); // Data final do período de assinatura
+          status = 'canceled'; // Atualiza o status para canceled
         } else {
           const priceId = subscription.items.data[0].price.id;
+      
           if (
             priceId === process.env.STRIPE_YEARLY_BASIC_PRICE_ID ||
             priceId === process.env.STRIPE_MONTHLY_BASIC_PRICE_ID
@@ -266,11 +237,17 @@ export async function POST(req: Request) {
             updatedPlan = 'professional';
             period = priceId.includes('YEARLY') ? 'yearly' : 'monthly';
           }
+      
+          // Atualiza a data final com base no período de assinatura
+          if (period === 'yearly') {
+            endDate.setFullYear(endDate.getFullYear() + 1);
+          } else {
+            endDate.setMonth(endDate.getMonth() + 1);
+          }
+      
+          status = 'active'; // Mantenha o status como ativo
         }
-
-        updatedPlan = updatedPlan || 'free';
-        period = period || 'monthly';
-
+      
         try {
           await prisma.user.update({
             where: { id: user.id },
@@ -278,32 +255,30 @@ export async function POST(req: Request) {
               plan: updatedPlan,
             },
           });
-
+      
           await prisma.subscription.upsert({
             where: { userId: user.id },
             create: {
               userId: user.id,
               plan: updatedPlan,
-              period: period,
+              period: period || 'monthly',
               startDate: new Date(),
-              endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+              endDate,
+              status, // Novo campo de status
             },
             update: {
               plan: updatedPlan,
-              period: period,
+              period: period || 'monthly',
               startDate: new Date(),
-              endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+              endDate,
+              status, // Atualiza o status ao cancelar
             },
           });
-
-          await prisma.subscription.findUnique({
-            where: { userId: user.id },
-          });
-
-          // Verificando o estado final da subscription
+      
           const finalSubscription = await prisma.subscription.findUnique({
             where: { userId: user.id },
           });
+      
           if (!finalSubscription?.plan || !finalSubscription?.period) {
             console.error(
               `Erro: Campos vazios após o salvamento. Plan: ${finalSubscription?.plan}, Period: ${finalSubscription?.period}`
@@ -312,9 +287,9 @@ export async function POST(req: Request) {
         } catch (error) {
           console.error('Erro ao atualizar o plano no Prisma:', error);
         }
-
+      
         break;
-      }
+      }      
 
       default:
         console.log(`Unhandled event type ${event.type}`);

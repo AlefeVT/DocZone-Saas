@@ -53,7 +53,7 @@ export default function FileCardList({ files }: FileCardListProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {currentFiles.map((file) => (
               <FileCard
-                url_signed_file={`/api/file-stream?fileId=${file.id}`}
+                url_signed_file={`/api/files-actions/file-stream-s3?fileId=${file.id}`}
                 key={file.id}
                 file={file}
               />

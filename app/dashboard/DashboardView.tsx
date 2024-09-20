@@ -9,20 +9,12 @@ import { DocumentBarChart } from './_components/DocumentBarChart';
 import { DocumentLineChart } from './_components/DocumentLineChart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-
-// Função para formatar o tamanho de armazenamento em KB, MB, ou GB
-const formatStorageSize = (sizeInKB: number) => {
-  if (sizeInKB >= 1024 * 1024) {
-    return `${(sizeInKB / (1024 * 1024)).toFixed(2)} GB`;
-  } else if (sizeInKB >= 1024) {
-    return `${(sizeInKB / 1024).toFixed(2)} MB`;
-  } else {
-    return `${sizeInKB.toFixed(2)} KB`;
-  }
-};
+import { convertToKB, formatStorageSize } from '@/lib/formatStorageSize';
+import DashboardAlerts from './_components/dashboardAlerts';
 
 export default function DashboardView() {
   const [loading, setLoading] = useState(true);
+  const [planLoading, setPlanLoading] = useState(true); 
   const [animatedData, setAnimatedData] = useState({
     totalDocuments: 0,
     totalContainers: 0,
@@ -30,8 +22,10 @@ export default function DashboardView() {
       size: 0,
       unit: 'KB',
     },
-    storageLimit: 5, // Limite padrão para o plano Free (em GB)
+    storageLimit: 5 * 1024 * 1024, // Limite padrão para o plano Free (em KB)
     planName: 'Plano Free',
+    isPlanCanceled: false, 
+    daysUntilExpiration: null, 
   });
 
   const [dataBar, setDataBar] = useState([]);
@@ -43,25 +37,21 @@ export default function DashboardView() {
         const response = await fetch('/api/dashboard');
         const data = await response.json();
 
-        // Converte o limite de armazenamento de GB para KB
-        const storageLimitInKB = data.storageLimit * 1024 * 1024; // Converte GB para KB
-
-        // Converter o valor usado também para KB, se necessário
+        // Converte o valor usado para KB, se necessário
         const totalStorageUsedInKB = convertToKB(
           data.totalStorageUsed.size,
           data.totalStorageUsed.unit
         );
 
-        setAnimatedData({
+        setAnimatedData((prevData) => ({
+          ...prevData,
           totalDocuments: data.totalDocuments,
           totalContainers: data.totalContainers,
           totalStorageUsed: {
             size: totalStorageUsedInKB,
             unit: 'KB',
           },
-          storageLimit: storageLimitInKB, // Limite em KB
-          planName: data.subscriptionPlan,
-        });
+        }));
 
         setDataBar(data.documentsPerContainer);
         setDataLine(data.documentCreationOverTime);
@@ -72,20 +62,31 @@ export default function DashboardView() {
       }
     }
 
-    fetchDashboardData();
-  }, []);
+    async function fetchPlanInfo() {
+      try {
+        const response = await fetch('/api/plan-info');
+        const data = await response.json();
 
-  // Função para converter diferentes unidades de tamanho (KB, MB, GB) para KB
-  const convertToKB = (size: number, unit: string): number => {
-    switch (unit) {
-      case 'GB':
-        return size * 1024 * 1024;
-      case 'MB':
-        return size * 1024;
-      default:
-        return size; // Assume que já está em KB
+        // Converte o limite de armazenamento de GB para KB
+        const storageLimitInKB = 5 * 1024 * 1024; // Plano free como padrão em KB
+
+        setAnimatedData((prevData) => ({
+          ...prevData,
+          storageLimit: storageLimitInKB,
+          planName: data.plan || 'Plano Free',
+          isPlanCanceled: data.isCanceled,
+          daysUntilExpiration: data.daysUntilExpiration,
+        }));
+      } catch (error) {
+        console.error('Failed to fetch plan info:', error);
+      } finally {
+        setPlanLoading(false);
+      }
     }
-  };
+
+    fetchDashboardData();
+    fetchPlanInfo();
+  }, []);
 
   // Calcula a porcentagem usada, sempre comparando KB com KB
   const storagePercentage = Math.min(
@@ -97,9 +98,17 @@ export default function DashboardView() {
     <div className="p-6">
       <h1 className="text-2xl font-bold">Painel de informações</h1>
 
+      {/* Alerta usando o componente separado */}
+      <DashboardAlerts
+        isPlanCanceled={animatedData.isPlanCanceled}
+        daysUntilExpiration={animatedData.daysUntilExpiration}
+        storagePercentage={storagePercentage}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {loading ? (
           <>
+            <Skeleton className="h-32 w-full" />
             <Skeleton className="h-32 w-full" />
             <Skeleton className="h-32 w-full" />
             <Skeleton className="h-32 w-full" />
@@ -127,7 +136,7 @@ export default function DashboardView() {
             <Card className="w-full">
               <CardHeader>
                 <CardTitle>
-                  Armazenamento do Plano ({animatedData.planName})
+                  Armazenamento do Plano ({planLoading ? 'Carregando...' : animatedData.planName})
                 </CardTitle>
               </CardHeader>
               <CardContent>

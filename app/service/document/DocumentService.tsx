@@ -7,7 +7,7 @@ export class DocumentService {
 
     try {
       const { data } = await axios.get(
-        `/api/get-documents?containerId=${containerId}`
+        `/api/files-actions/get-documents?containerId=${containerId}`
       );
       return data.files || [];
     } catch (error) {

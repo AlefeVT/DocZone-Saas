@@ -55,7 +55,7 @@ export function FileTable({ files: initialFiles }: FileTableProps) {
 
   const handleViewFile = (file: FileData) => {
     if (file.fileType === 'application/pdf') {
-      const pdfUrl = `/api/file-stream?fileId=${file.id}`;
+      const pdfUrl = `/api/files-actions/file-stream-s3?fileId=${file.id}`;
       setFileUrl(pdfUrl);
     } else if (file.fileType.startsWith('image/')) {
       setFileUrl(file.url);

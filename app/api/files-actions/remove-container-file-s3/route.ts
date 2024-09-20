@@ -2,7 +2,7 @@ import { DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@/lib/auth';
-import { s3Client } from '../s3client-config';
+import { s3Client } from '../../s3client-config';
 
 class ContainerService {
   static prisma = new PrismaClient();

@@ -1,25 +1,22 @@
 import NextAuth from 'next-auth';
-
 import authConfig from '@/auth.config';
-import {
-  DEFAULT_LOGIN_REDIRECT,
-  LANDING_PAGE_ROUTE,
-  apiAuthPrefix,
-  authRoutes,
-  publicRoutes,
-} from '@/routes';
+import { DEFAULT_LOGIN_REDIRECT, LANDING_PAGE_ROUTE, apiAuthPrefix, authRoutes, publicRoutes } from '@/routes';
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+export default auth(async (req) => {
   const { nextUrl } = req;
 
-  if (nextUrl.pathname === '/api/webhooks/stripe') {
-    return null; // Ignorar autenticação para essa rota
+  if (req.auth && req.auth.user?.email) {
+    const email = req.auth.user.email;
+
+    // Chame a API route para verificar a assinatura do usuário
+    await fetch(`${baseUrl}/api/check-subscription?email=${encodeURIComponent(email)}`);
   }
 
   const isLoggedIn = !!req.auth;
-
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
